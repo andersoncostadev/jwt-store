@@ -1,0 +1,20 @@
+using JwtStore.Core.Contexts.AccountContext.Entities;
+using JwtStore.Core.Contexts.AccountContext.UseCases.Authenticate.Contract;
+using JwtStore.Infra.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace JwtStore.Infra.Contexts.AccountContext.UseCases.Authenticate;
+
+public class Repository : IRepository
+{
+    private readonly AppDbContext _context;
+
+    public Repository(AppDbContext context) => _context = context;
+
+    public async Task<User?> GetByEmailAsync(string requestEmail, CancellationToken cancellationToken) =>
+        await _context
+            .Users
+            .AsNoTracking()
+            .Include(x => x.Roles)
+            .FirstOrDefaultAsync(x => x.Email.Address == requestEmail, cancellationToken: cancellationToken);
+}
